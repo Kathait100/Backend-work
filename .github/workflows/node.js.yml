@@ -1,0 +1,31 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]  # Trigger the workflow when a commit is pushed to the `main` branch
+  pull_request:
+    branches: [ "main" ]  # Trigger the workflow when a pull request is made to the `main` branch
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux]  # Use your self-hosted runner
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]  # Run tests on multiple Node.js versions
+
+    steps:
+      - uses: actions/checkout@v4  # Checkout the code from your repository
+
+      - name: Use Node.js ${{ matrix.node-version }}  # Set up Node.js versions
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'  # Cache Node.js dependencies for faster subsequent builds
+
+      - run: npm ci  # Install dependencies
+
+      - run: npm run build --if-present  # Run the build command if defined
+
+      - run: npm test  # Run tests
+
